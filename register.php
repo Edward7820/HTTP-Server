@@ -11,15 +11,31 @@
             die('Could not connect: ' . mysql_error());
         }
         mysql_select_db('accounts', $conn);
-        $query = 'INSERT INTO user ' . 
-        '(username, password) ' . 
-        "VALUES ($username, $password)";
-        mysql_query($query, $conn);
-        mysql_close($conn);
-        
-        $newPage = $_SERVER["SERVER_NAME"] . "homepage.php";
-        header("Location:$newPage");
-        exit();
+
+        # check that whether the username has already been registered
+        $query = 'SELECT * FROM user WHERE username = ' . "$username";
+        $query_ret = mysql_query($query, $conn);
+        $user = mysql_fetch_array($query_ret, MYSQL_ASSOC);
+        if ($user){
+            # show error message
+            echo '<script>alert("The username has been used. Please choose another username!")</script>';
+            mysql_close($conn);
+            exit();
+        }
+        else{
+            # add a user account to the database
+            $query = 'INSERT INTO user ' . 
+            '(username, password) ' . 
+            "VALUES ($username, $password)";
+            mysql_query($query, $conn);
+            mysql_close($conn);
+
+            # redirect to the homepage
+            echo '<script>alert("Registered successfully!")</script>';
+            $newPage = $_SERVER["SERVER_NAME"] . "homepage.php";
+            header("Location:$newPage");
+            exit();
+        }        
     }
 ?>
 <html>
