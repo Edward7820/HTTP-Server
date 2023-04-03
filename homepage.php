@@ -1,11 +1,9 @@
 <?php
     session_start();
 
-    if (isset($_SESSION['username'])){
-        echo 'Welcome to ' . $_SESSION['username'] . '<br />';
-    } else{
+    if (! isset($_SESSION['username'])){
         echo '<script>alert("Please login first!")</script>';
-        $newPage = "login.php";
+        $newPage = "Location: login.php";
         header($newPage);
         exit();
     }
@@ -33,6 +31,11 @@
 
     <body>
         <h1>Homepage</h1>
+        <?php 
+            if (isset($_SESSION['username'])){
+                echo '<h3>' . $_SESSION['username'] . ' Hi! </h3>';
+            }
+        ?>
 
     </body>
 </html>
