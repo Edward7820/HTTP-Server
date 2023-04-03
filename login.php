@@ -6,23 +6,23 @@
         $username = $_POST["username"];
         $password = $_POST["password"];
 
-        $conn = mysql_connect();
+        $conn = mysqli_connect('localhost','edward','how910530');
         if (!$conn){
-            die('Could not connect: ' . mysql_error());
+            die('Could not connect: ' . mysqli_connect_error());
         }
-        mysql_select_db('accounts', $conn);
+        mysqli_select_db($conn, 'accounts');
 
         # check whether the password is correct
-        $query = 'SELECT password FROM user WHERE username = ' . "$username";
-        $query_ret = mysql_query($query);
-        $user = mysql_fetch_array($query_ret, MYSQL_ASSOC);
-        mysql_close($conn);
+        $query = 'SELECT password FROM user WHERE username = ' . "'$username'";
+        $query_ret = mysqli_query($conn, $query);
+        $user = mysqli_fetch_array($query_ret, MYSQLI_ASSOC);
+        mysqli_close($conn);
 
         if ($user){
             if ($user['password'] == $password){
                 echo '<script>alert("You have logged in successfully")</script>';
-                $newPage = $_SERVER["SERVER_NAME"] . "homepage.php";
-                header("Location:$newPage");
+                $newPage = "Location: homepage.php";
+                header($newPage);
                 exit();
             }
             echo '<script>alert("The password you entered is wrong!")</script>';

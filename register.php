@@ -5,35 +5,38 @@
 
         $username = $_POST["username"];
         $password = $_POST["password"];
+        error_log("[Info] Register username: " . $username . "; password: " . $password);
 
-        $conn = mysql_connect();
+        $conn = mysqli_connect('localhost','edward','how910530');
         if (!$conn){
-            die('Could not connect: ' . mysql_error());
+            die('Could not connect: ' . mysqli_connect_error());
         }
-        mysql_select_db('accounts', $conn);
+        mysqli_select_db($conn, 'accounts');
 
         # check that whether the username has already been registered
-        $query = 'SELECT * FROM user WHERE username = ' . "$username";
-        $query_ret = mysql_query($query, $conn);
-        $user = mysql_fetch_array($query_ret, MYSQL_ASSOC);
+        $query = 'SELECT * FROM user WHERE username = ' . "'$username'";
+        $query_ret = mysqli_query($conn, $query);
+        error_log("[Info] mysql query: " . $query);
+        $user = mysqli_fetch_array($query_ret, MYSQLI_ASSOC);
         if ($user){
             # show error message
             echo '<script>alert("The username has been used. Please choose another username!")</script>';
-            mysql_close($conn);
+            mysqli_close($conn);
             exit();
         }
         else{
             # add a user account to the database
             $query = 'INSERT INTO user ' . 
             '(username, password) ' . 
-            "VALUES ($username, $password)";
-            mysql_query($query, $conn);
-            mysql_close($conn);
+            "VALUES ('$username', '$password')";
+            mysqli_query($conn, $query);
+            error_log("[Info] mysql query: " . $query);
+            mysqli_close($conn);
 
             # redirect to the homepage
             echo '<script>alert("Registered successfully!")</script>';
-            $newPage = $_SERVER["SERVER_NAME"] . "homepage.php";
-            header("Location:$newPage");
+            $newPage = "Location: homepage.php";
+            header($newPage);
             exit();
         }        
     }

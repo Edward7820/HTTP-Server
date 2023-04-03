@@ -2,11 +2,11 @@
     session_start();
 
     if (isset($_SESSION['username'])){
-        echo 'welcome <br />';
+        echo 'Welcome to ' . $_SESSION['username'] . '<br />';
     } else{
         echo '<script>alert("Please login first!")</script>';
-        $newPage = $_SERVER["SERVER_NAME"] . "login.php";
-        header("Location:$newPage");
+        $newPage = "login.php";
+        header($newPage);
         exit();
     }
 ?>
