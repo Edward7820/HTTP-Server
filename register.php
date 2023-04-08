@@ -10,10 +10,10 @@
         if (!$conn){
             die('Could not connect: ' . mysqli_connect_error());
         }
-        mysqli_select_db($conn, 'accounts');
+        mysqli_select_db($conn, 'radius');
 
         # check that whether the username has already been registered
-        $query = 'SELECT * FROM user WHERE username = ' . "'$username'";
+        $query = 'SELECT * FROM radcheck WHERE username = ' . "'$username'";
         $query_ret = mysqli_query($conn, $query);
         error_log("[Info] mysql query: " . $query);
         $user = mysqli_fetch_array($query_ret, MYSQLI_ASSOC);
@@ -25,16 +25,27 @@
         }
         else{
             # add a user account to the database
-            $query = 'INSERT INTO user ' . 
-            '(username, password) ' . 
-            "VALUES ('$username', '$password')";
+            $query = 'INSERT INTO radcheck (username,attribute,op,value) ' .
+            "VALUES ('$username', 'Cleartext-Password',':=','$password')";
             mysqli_query($conn, $query);
             error_log("[Info] mysql query: " . $query);
+
+            $query = 'INSERT INTO radcheck (username,attribute,op,value) ' .
+            "VALUES ('$username', 'Max-Daily-Session',':=','300')";
+            mysqli_query($conn, $query);
+            error_log("[Info] mysql query: " . $query);
+
+            $acct_res = radius_acct_open();
+            radius_add_server($acct_res,'localhost',1813,'testing123',3,3);
+            radius_create_request($acct_res, RADIUS_ACCOUNTING_REQUEST);
+            radius_put_attr($acct_res,RADIUS_USER_NAME,$username);
+            radius_put_attr($acct_res,RADIUS_ACCT_STATUS_TYPE,RADIUS_START);
+            radius_send_request($acct_res);
+
             mysqli_close($conn);
 
             # handle session
             $_SESSION["username"] = $_POST["username"];
-            $_SESSION["starttime"] = time();
 
             # redirect to the homepage
             echo '<script>alert("Registered successfully!")</script>';

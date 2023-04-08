@@ -7,6 +7,22 @@
         header($newPage);
         exit();
     }
+
+    if ($_POST["logout"]){
+        echo '<script>You have logged out.</script>';
+        session_destroy();
+
+        $acct_res = radius_acct_open();
+        radius_add_server($acct_res,'localhost',1813,'testing123',3,3);
+        radius_create_request($acct_res, RADIUS_ACCOUNTING_REQUEST);
+        radius_put_attr($acct_res,RADIUS_USER_NAME,$_SESSION['username']);
+        radius_put_attr($acct_res,RADIUS_ACCT_STATUS_TYPE,RADIUS_STOP);
+        radius_send_request($acct_res);
+
+        $newPage = "Location: login.php";
+        header($newPage);
+        exit();
+    }
 ?>
 <html>
     <head>
@@ -36,6 +52,9 @@
                 echo '<h3>' . $_SESSION['username'] . ' Hi! </h3>';
             }
         ?>
+        <form action="<?php $_PHP_SELF ?>" method="POST">
+            <button name="logout" value="true">logout</button>
+        </form>
 
     </body>
 </html>

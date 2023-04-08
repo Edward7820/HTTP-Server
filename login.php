@@ -5,31 +5,36 @@
         $username = $_POST["username"];
         $password = $_POST["password"];
 
-        $conn = mysqli_connect('localhost','edward','how910530');
-        if (!$conn){
-            die('Could not connect: ' . mysqli_connect_error());
-        }
-        mysqli_select_db($conn, 'accounts');
+        #$conn = mysqli_connect('localhost','edward','how910530');
+        #if (!$conn){
+        #    die('Could not connect: ' . mysqli_connect_error());
+        #}
+        #mysqli_select_db($conn, 'radius');
 
         # check whether the password is correct
-        $query = 'SELECT password FROM user WHERE username = ' . "'$username'";
-        $query_ret = mysqli_query($conn, $query);
-        $user = mysqli_fetch_array($query_ret, MYSQLI_ASSOC);
-        mysqli_close($conn);
+        $auth_res = radius_auth_open();
+        $acct_res = radius_acct_open();
+        radius_add_server($auth_res,'localhost',1812,'testing123',3,3);
+        radius_add_server($acct_res,'localhost',1813,'testing123',3,3);
+        radius_create_request($auth_res, RADIUS_ACCESS_REQUEST);
+        radius_create_request($acct_res, RADIUS_ACCOUNTING_REQUEST);
+        radius_put_attr($auth_res, RADIUS_USER_NAME, $username);
+        radius_put_attr($auth_res, RADIUS_USER_PASSWORD, $password);
+        radius_put_attr($acct_res, RADIUS_USER_NAME, $username);
+        radius_put_attr($acct_res, RADIUS_ACCT_STATUS_TYPE, RADIUS_START);
 
-        if ($user){
-            if ($user['password'] == $password){
-                $_SESSION["username"] = $username;
-                echo '<script>alert("You have logged in successfully")</script>';
-                $newPage = "Location: homepage.php";
-                header($newPage);
-                exit();
-            }
-            echo '<script>alert("The password you entered is wrong!")</script>';
+        if (radius_send_request($auth_res) == RADIUS_ACCESS_ACCEPT){
+            radius_send_request($acct_res);
+            $_SESSION["username"] = $username;
+            echo '<script>alert("You have logged in successfully")</script>';
+            $newPage = "Location: homepage.php";
+            header($newPage);
             exit();
         }
-        echo '<script>alert("The username does not exist!")</script>';
-        exit();
+        else{
+            echo '<script>alert("You can not log in.")</script>';
+            exit();
+        }
     }
 ?>
 <html>
