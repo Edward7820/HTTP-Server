@@ -1,7 +1,6 @@
 <?php
     if ($_POST["username"] and $_POST["password"]){
         session_start();
-        $_SESSION["username"] = $_POST["username"];
 
         $username = $_POST["username"];
         $password = $_POST["password"];
@@ -32,6 +31,10 @@
             mysqli_query($conn, $query);
             error_log("[Info] mysql query: " . $query);
             mysqli_close($conn);
+
+            # handle session
+            $_SESSION["username"] = $_POST["username"];
+            $_SESSION["starttime"] = time();
 
             # redirect to the homepage
             echo '<script>alert("Registered successfully!")</script>';

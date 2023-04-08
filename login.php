@@ -1,7 +1,6 @@
 <?php 
     if ($_POST["username"] and $_POST["password"]){
         session_start();
-        $_SESSION["username"] = $_POST["username"];
 
         $username = $_POST["username"];
         $password = $_POST["password"];
@@ -20,6 +19,7 @@
 
         if ($user){
             if ($user['password'] == $password){
+                $_SESSION["username"] = $username;
                 echo '<script>alert("You have logged in successfully")</script>';
                 $newPage = "Location: homepage.php";
                 header($newPage);
