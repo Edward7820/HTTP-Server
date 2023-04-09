@@ -21,11 +21,13 @@
         radius_put_attr($auth_res, RADIUS_USER_NAME, $username);
         radius_put_attr($auth_res, RADIUS_USER_PASSWORD, $password);
         radius_put_attr($acct_res, RADIUS_USER_NAME, $username);
-        radius_put_attr($acct_res, RADIUS_ACCT_STATUS_TYPE, RADIUS_START);
+        radius_put_int($acct_res, RADIUS_ACCT_STATUS_TYPE, RADIUS_START);
+        radius_put_int($acct_res, RADIUS_ACCT_SESSION_TIME, 0);
 
         if (radius_send_request($auth_res) == RADIUS_ACCESS_ACCEPT){
             radius_send_request($acct_res);
             $_SESSION["username"] = $username;
+            $_SESSION["starttime"] = time();
             echo '<script>alert("You have logged in successfully")</script>';
             $newPage = "Location: homepage.php";
             header($newPage);

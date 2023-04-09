@@ -39,13 +39,15 @@
             radius_add_server($acct_res,'localhost',1813,'testing123',3,3);
             radius_create_request($acct_res, RADIUS_ACCOUNTING_REQUEST);
             radius_put_attr($acct_res,RADIUS_USER_NAME,$username);
-            radius_put_attr($acct_res,RADIUS_ACCT_STATUS_TYPE,RADIUS_START);
+            radius_put_int($acct_res, RADIUS_ACCT_STATUS_TYPE, RADIUS_START);
+            radius_put_int($acct_res, RADIUS_ACCT_SESSION_TIME, 0);
             radius_send_request($acct_res);
 
             mysqli_close($conn);
 
             # handle session
             $_SESSION["username"] = $_POST["username"];
+            $_SESSION["starttime"] = time();
 
             # redirect to the homepage
             echo '<script>alert("Registered successfully!")</script>';
