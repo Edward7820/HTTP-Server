@@ -51,7 +51,25 @@
         <h1>Homepage</h1>
         <?php 
             if (isset($_SESSION['username'])){
-                echo '<h3>' . $_SESSION['username'] . ' Hi! </h3>';
+                $username = $_SESSION['username'];
+                echo '<h3>' . $username . ' Hi! </h3>';
+
+                # query the database for session time
+                $conn = mysqli_connect('localhost','edward','how910530');
+                if (!$conn){
+                    die('Could not connect: ' . mysqli_connect_error());
+                }
+                mysqli_select_db($conn, 'radius');
+                $query = 'SELECT acctsessiontime FROM radacct WHERE username = ' . 
+                "'$username'";
+                $query_ret = mysqli_query($conn, $query);
+                error_log("[Info] mysql query: " . $query);
+                $prev_data = mysqli_fetch_array($query_ret, MYSQLI_ASSOC);
+                if ($prev_data) {
+                    $prev_session_time = $prev_data['acctsessiontime'];
+                    echo 'Your previus session time is ' . 
+                    "$prev_session_time" . '<br />';
+                }
             }
         ?>
         <form action="<?php $_PHP_SELF ?>" method="POST">
