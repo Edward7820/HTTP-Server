@@ -1,4 +1,5 @@
 <?php
+    include "utils.php";
     session_start();
 
     if (! isset($_SESSION['username'])){
@@ -10,15 +11,27 @@
 
     if ($_POST["logout"]){
         echo '<script>You have logged out.</script>';
+        $username = $_SESSION['username'];
         $session_time = time() - $_SESSION["starttime"];
         session_destroy();
+
+        # get total session time
+        # $conn = mysqli_connect('localhost','edward','how910530');
+        # if (!$conn){
+        #     die('Could not connect: ' . mysqli_connect_error());
+        # }
+        # $prev_session_time = get_prev_session_time($conn, $username);
+        # $total_session_time = $session_time;            
+        # if ($prev_session_time != NULL) {
+        #     $total_session_time = $prev_session_time + $total_session_time;
+        # }
 
         $acct_res = radius_acct_open();
         radius_add_server($acct_res,'localhost',1813,'testing123',3,3);
         radius_create_request($acct_res, RADIUS_ACCOUNTING_REQUEST);
-        radius_put_attr($acct_res,RADIUS_USER_NAME,$_SESSION['username']);
+        radius_put_attr($acct_res,RADIUS_USER_NAME,$username);
         radius_put_int($acct_res,RADIUS_ACCT_STATUS_TYPE,RADIUS_STOP);
-        radius_put_int($acct_res, RADIUS_ACCT_SESSION_TIME, $session_time);
+        radius_put_int($acct_res,RADIUS_ACCT_SESSION_TIME, $session_time);
         radius_send_request($acct_res);
 
         $newPage = "Location: login.php";
@@ -29,6 +42,7 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <meta http-equiv="refresh" content="10">
 
         <title>Homepage</title>
 
@@ -59,16 +73,13 @@
                 if (!$conn){
                     die('Could not connect: ' . mysqli_connect_error());
                 }
-                mysqli_select_db($conn, 'radius');
-                $query = 'SELECT acctsessiontime FROM radacct WHERE username = ' . 
-                "'$username'";
-                $query_ret = mysqli_query($conn, $query);
-                error_log("[Info] mysql query: " . $query);
-                $prev_data = mysqli_fetch_array($query_ret, MYSQLI_ASSOC);
-                if ($prev_data) {
-                    $prev_session_time = $prev_data['acctsessiontime'];
-                    echo 'Your previus session time is ' . 
-                    "$prev_session_time" . '<br />';
+                $prev_session_time = get_prev_session_time($conn, $username);
+                $current_session_time = time() - $_SESSION["starttime"];
+                
+                if ($prev_session_time != NULL) {
+                    $total_session_time = $prev_session_time + $current_session_time;
+                    echo 'Your total session time is ' . 
+                    "$total_session_time" . '<br />';
                 }
             }
         ?>

@@ -1,15 +1,17 @@
 <?php 
+    include "utils.php";
     if ($_POST["username"] and $_POST["password"]){
         session_start();
 
         $username = $_POST["username"];
         $password = $_POST["password"];
 
-        #$conn = mysqli_connect('localhost','edward','how910530');
-        #if (!$conn){
-        #    die('Could not connect: ' . mysqli_connect_error());
-        #}
-        #mysqli_select_db($conn, 'radius');
+        # get previous session time
+        # $conn = mysqli_connect('localhost','edward','how910530');
+        # if (!$conn){
+        #     die('Could not connect: ' . mysqli_connect_error());
+        # }
+        # $prev_session_time = get_prev_session_time($conn, $username);
 
         # check whether the password is correct
         $auth_res = radius_auth_open();

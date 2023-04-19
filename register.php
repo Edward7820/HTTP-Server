@@ -35,6 +35,11 @@
             mysqli_query($conn, $query);
             error_log("[Info] mysql query: " . $query);
 
+            $query = 'INSERT INTO radcheck (username,attribute,op,value) ' . 
+            "VALUES ('$username', 'Max-Daily-Traffic', ':=', '524288')";
+            mysqli_query($conn, $query);
+            error_log("[Info] mysql query: " . $query);
+
             $acct_res = radius_acct_open();
             radius_add_server($acct_res,'localhost',1813,'testing123',3,3);
             radius_create_request($acct_res, RADIUS_ACCOUNTING_REQUEST);
